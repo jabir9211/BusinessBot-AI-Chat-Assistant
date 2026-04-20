@@ -1,0 +1,585 @@
+.businessbot-admin-shell {
+    background: #f6f7f9;
+    margin: 16px 0 0;
+    padding: 24px;
+    border-radius: 12px;
+}
+
+.businessbot-profile-wrap {
+    max-width: 1240px;
+    margin: 0 auto;
+}
+
+.businessbot-page-header {
+    position: sticky;
+    top: 32px;
+    z-index: 20;
+    background: #f6f7f9;
+    padding: 8px 0 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.businessbot-page-header h1 {
+    margin: 0 0 6px;
+    font-size: 24px;
+    line-height: 1.3;
+    color: #111827;
+}
+
+.businessbot-page-header p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.businessbot-header-actions .button-primary,
+.businessbot-footer-actions .button-primary {
+    min-height: 40px;
+    padding: 0 16px;
+}
+
+.businessbot-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.businessbot-card h2 {
+    margin: 0 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 17px;
+    color: #111827;
+}
+
+.businessbot-card .dashicons {
+    color: #4f46e5;
+}
+
+.businessbot-field {
+    margin-bottom: 16px;
+}
+
+.businessbot-field:last-child {
+    margin-bottom: 0;
+}
+
+.businessbot-field label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #111827;
+}
+
+.businessbot-field input,
+.businessbot-field select,
+.businessbot-field textarea {
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #111827;
+    background: #fff;
+}
+
+.businessbot-field input,
+.businessbot-field select {
+    min-height: 40px;
+    padding: 0 12px;
+}
+
+.businessbot-field textarea {
+    min-height: 100px;
+    padding: 10px 12px;
+    resize: vertical;
+}
+
+.businessbot-field input:focus,
+.businessbot-field select:focus,
+.businessbot-field textarea:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    outline: none;
+}
+
+.businessbot-help {
+    margin: 6px 0 0;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.businessbot-grid {
+    display: grid;
+    gap: 16px;
+}
+
+.businessbot-grid-two {
+    grid-template-columns: 1fr 1fr;
+}
+
+.businessbot-preview {
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+}
+
+.businessbot-preview strong {
+    display: block;
+    margin-bottom: 6px;
+    color: #111827;
+    font-size: 13px;
+}
+
+.businessbot-preview p {
+    margin: 0;
+    color: #374151;
+}
+
+.businessbot-footer-actions {
+    margin-top: 24px;
+}
+
+.businessbot-notice {
+    max-width: 1000px;
+    margin: 0 auto 16px;
+}
+
+@media (max-width: 960px) {
+    .businessbot-page-header {
+        position: static;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .businessbot-grid-two {
+        grid-template-columns: 1fr;
+    }
+}
+
+.businessbot-settings-wrap {
+    max-width: 1240px;
+}
+
+.businessbot-settings-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(240px, 1fr);
+    gap: 24px;
+}
+
+.businessbot-status-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.businessbot-status-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #111827;
+}
+
+.businessbot-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    padding: 3px 8px;
+    border-radius: 999px;
+}
+
+.businessbot-status-pill .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.businessbot-status-pill.is-active {
+    color: #166534;
+    background: #dcfce7;
+}
+
+.businessbot-status-pill.is-active .dot {
+    background: #22c55e;
+}
+
+.businessbot-status-pill.is-disabled {
+    color: #374151;
+    background: #e5e7eb;
+}
+
+.businessbot-status-pill.is-disabled .dot {
+    background: #6b7280;
+}
+
+.businessbot-status-pill.is-error {
+    color: #991b1b;
+    background: #fee2e2;
+}
+
+.businessbot-status-pill.is-error .dot {
+    background: #dc2626;
+}
+
+.businessbot-toggle {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    display: inline-flex;
+    flex-shrink: 0;
+}
+
+.businessbot-toggle input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    overflow: hidden;
+}
+
+.businessbot-toggle-slider {
+    width: 100%;
+    height: 100%;
+    border-radius: 999px;
+    background: #cbd5e1;
+    transition: background 0.2s ease;
+    position: relative;
+}
+
+.businessbot-toggle-slider::before {
+    content: '';
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #fff;
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease;
+}
+
+.businessbot-toggle input:checked + .businessbot-toggle-slider {
+    background: #2271b1;
+}
+
+.businessbot-toggle input:checked + .businessbot-toggle-slider::before {
+    transform: translateX(20px);
+}
+
+.businessbot-toggle input:disabled + .businessbot-toggle-slider {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.businessbot-inline-heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #111827;
+}
+
+.businessbot-badge {
+    font-size: 11px;
+    font-weight: 600;
+    color: #7c2d12;
+    background: #ffedd5;
+    border-radius: 999px;
+    padding: 3px 8px;
+}
+
+.businessbot-help-strong {
+    color: #374151;
+    font-weight: 500;
+}
+
+.businessbot-behavior-block.is-disabled {
+    opacity: 0.6;
+}
+
+.businessbot-preview-list {
+    display: grid;
+    gap: 16px;
+}
+
+.businessbot-preview-list h3 {
+    margin: 0 0 6px;
+    font-size: 14px;
+    color: #111827;
+}
+
+.businessbot-preview-list p {
+    margin: 0;
+    color: #4b5563;
+    font-size: 13px;
+}
+
+.businessbot-tip-card ul {
+    margin: 0;
+    padding-left: 18px;
+}
+
+.businessbot-tip-card li {
+    margin-bottom: 10px;
+    color: #374151;
+    font-size: 13px;
+}
+
+.businessbot-tip-card li:last-child {
+    margin-bottom: 0;
+}
+
+#businessbot-settings-save-top .spinner,
+#businessbot-settings-save-bottom .spinner {
+    float: none;
+    margin: 0 0 0 6px;
+    visibility: hidden;
+}
+
+.is-saving #businessbot-settings-save-top .spinner,
+.is-saving #businessbot-settings-save-bottom .spinner {
+    visibility: visible;
+}
+
+.businessbot-toast {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    background: #111827;
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 10000;
+}
+
+.businessbot-toast.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.businessbot-integration-grid {
+    align-items: start;
+}
+
+.businessbot-input-group {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 8px;
+}
+
+.businessbot-actions-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+#businessbot-test-spinner {
+    margin: 0;
+    float: none;
+    visibility: hidden;
+}
+
+#businessbot-test-spinner.is-visible {
+    visibility: visible;
+}
+
+.businessbot-inline-error {
+    color: #b91c1c;
+}
+
+.businessbot-field input.has-error {
+    border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+}
+
+.businessbot-trust-list {
+    margin-top: 14px;
+    border-top: 1px solid #e5e7eb;
+    padding-top: 12px;
+    display: grid;
+    gap: 10px;
+    font-size: 13px;
+    color: #374151;
+}
+
+.businessbot-trust-list div {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.businessbot-step-list {
+    display: grid;
+    gap: 10px;
+}
+
+.businessbot-step {
+    display: flex;
+    gap: 6px;
+    font-size: 13px;
+    color: #374151;
+}
+
+.businessbot-warning-box {
+    margin-top: 14px;
+    border: 1px solid #fde68a;
+    background: #fffbeb;
+    color: #92400e;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 12px;
+}
+
+.businessbot-diagnostics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    font-size: 13px;
+    color: #374151;
+}
+
+.businessbot-diagnostics-grid strong {
+    color: #111827;
+}
+
+.businessbot-page-header-static {
+    position: static;
+    padding-top: 0;
+}
+
+.businessbot-progress-card {
+    margin-bottom: 20px;
+}
+
+.businessbot-progress-steps {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.businessbot-progress-step {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 10px;
+    text-decoration: none;
+    background: #fff;
+}
+
+.businessbot-progress-step .step-title {
+    display: block;
+    font-size: 13px;
+    color: #111827;
+    font-weight: 600;
+}
+
+.businessbot-progress-step .step-status {
+    display: block;
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 3px;
+}
+
+.businessbot-progress-step.is-complete {
+    border-color: #86efac;
+    background: #f0fdf4;
+}
+
+.businessbot-progress-step.is-warning {
+    border-color: #fdba74;
+    background: #fff7ed;
+}
+
+.businessbot-progress-step.is-pending {
+    border-color: #d1d5db;
+    background: #f9fafb;
+}
+
+.businessbot-progress-bar {
+    width: 100%;
+    height: 8px;
+    border-radius: 999px;
+    background: #e5e7eb;
+    overflow: hidden;
+}
+
+.businessbot-progress-bar span {
+    display: block;
+    height: 100%;
+    background: #2271b1;
+}
+
+.businessbot-onboarding-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.businessbot-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.businessbot-checklist {
+    margin: 14px 0 0;
+    padding-left: 18px;
+}
+
+.businessbot-checklist li {
+    margin-bottom: 6px;
+    color: #374151;
+    font-size: 13px;
+}
+
+.businessbot-checklist li:last-child {
+    margin-bottom: 0;
+}
+
+.businessbot-success-card {
+    border-color: #86efac;
+    background: #f0fdf4;
+}
+
+.businessbot-success-card p,
+.businessbot-tip-card p {
+    margin: 0;
+    color: #374151;
+}
+
+@media (max-width: 960px) {
+    .businessbot-settings-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .businessbot-progress-steps {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .businessbot-onboarding-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .businessbot-diagnostics-grid {
+        grid-template-columns: 1fr;
+    }
+}

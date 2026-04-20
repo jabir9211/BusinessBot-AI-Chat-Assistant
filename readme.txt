@@ -2,9 +2,9 @@
 Contributors: jabir20
 Tags: ai assistant, support chat, gemini, customer support, chatbot, business assistant
 Requires at least: 5.5
-Tested up to: 6.8
+Tested up to: 6.9.4
 Requires PHP: 7.4
-Stable tag: 1.2
+Stable tag: 2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Tags: ai assistant, support chat, gemini, chatbot, business assistant
@@ -60,6 +60,11 @@ Not yet, but customization features are planned in future updates.
 * New option to Enable/Disable Chat Icon.
 * Added control to stop annoying popups from showing every time.
 * UI enhanced with better responsiveness and smoother experience.
+
+= 2.0 =
+* Complete admin UI redesign across Details, Integration, Settings, and How to Use pages.
+* Added guided onboarding flow with dynamic setup progress tracking.
+* Added API connection testing with status feedback and improved key management UX.
 
 = 1.2 =
 * Improved best practices.

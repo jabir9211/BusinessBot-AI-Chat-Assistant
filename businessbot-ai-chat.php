@@ -2,7 +2,7 @@
 /*
 Plugin Name: BusinessBot AI Chat Assistant
 Description: A personalized AI assistant plugin that gathers essential business details from the site admin and uses Gemini (Google) AI to act as a smart support executive for site visitors.
-Version: 1.2
+Version: 2.0
 Author: Mohammed Jabir Shaikh
 Author URI: https://mohammedjabir.com/
 Contributors: jabir20
@@ -11,7 +11,7 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: businessbot-ai-chat
 Requires PHP: 7.4
 Requires at least: 5.5
-Tested up to: 6.8
+Tested up to: 6.9.4
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ defined('ABSPATH') || exit;
 // Constants
 define('BUSSINESSBOT_DIR', plugin_dir_path(__FILE__));
 define('BUSSINESSBOT_URL', plugin_dir_url(__FILE__));
-define('BUSSINESSBOT_VERSION', '1.1');
+define('BUSSINESSBOT_VERSION', '2.0');
 
 // Include core files
 require_once BUSSINESSBOT_DIR . 'admin/menus.php';
