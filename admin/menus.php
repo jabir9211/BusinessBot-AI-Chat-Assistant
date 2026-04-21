@@ -51,4 +51,13 @@ function businessbot_chat_assist_add_admin_menu() {
         'businessbot-how-to-use',
         'businessbot_chat_assist_how_to_use_page'
     );
+
+    add_submenu_page(
+        'businessbot',
+        __('Logs', 'businessbot-ai-chat'),
+        __('Logs', 'businessbot-ai-chat'),
+        'manage_options',
+        'businessbot-logs',
+        'businessbot_chat_assist_logs_page'
+    );
 }

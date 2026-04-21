@@ -38,13 +38,16 @@ function businessbot_chat_assist_front_settings_page() {
 
         $chatbot_enabled = isset($_POST['chatbot_enabled']) ? 'yes' : 'no';
         $chatbot_auto_open = isset($_POST['chatbot_auto_open']) ? 'yes' : 'no';
+        $chatbot_debug_mode = isset($_POST['chatbot_debug_mode']) ? 'yes' : 'no';
 
         update_option('businessbot_chatbot_enabled', $chatbot_enabled);
         update_option('businessbot_chatbot_auto_open', $chatbot_auto_open);
+        update_option('businessbot_debug_mode', $chatbot_debug_mode);
     }
 
     $chatbot_enabled = get_option('businessbot_chatbot_enabled', 'yes');
     $chatbot_auto_open = get_option('businessbot_chatbot_auto_open', 'yes');
+    $chatbot_debug_mode = get_option('businessbot_debug_mode', 'no');
     $is_enabled = ('yes' === $chatbot_enabled);
     ?>
     <div class="wrap businessbot-admin-shell">
@@ -113,6 +116,26 @@ function businessbot_chat_assist_front_settings_page() {
                                         <span class="businessbot-toggle-slider" aria-hidden="true"></span>
                                     </label>
                                 </div>
+                            </div>
+                        </div>
+
+                        <div class="businessbot-card">
+                            <h2><span class="dashicons dashicons-admin-tools"></span><?php esc_html_e('Diagnostics', 'businessbot-ai-chat'); ?></h2>
+                            <div class="businessbot-status-row">
+                                <div>
+                                    <div class="businessbot-inline-heading">
+                                        <span><?php esc_html_e('Enable debug mode', 'businessbot-ai-chat'); ?></span>
+                                        <span class="businessbot-badge"><?php esc_html_e('For troubleshooting', 'businessbot-ai-chat'); ?></span>
+                                    </div>
+                                    <p class="businessbot-help"><?php esc_html_e('Writes model attempts and API status to your PHP error log. API keys are never logged.', 'businessbot-ai-chat'); ?></p>
+                                    <p class="businessbot-help businessbot-help-strong">
+                                        <?php echo ('yes' === $chatbot_debug_mode) ? esc_html__('Debug mode is enabled.', 'businessbot-ai-chat') : esc_html__('Debug mode is disabled.', 'businessbot-ai-chat'); ?>
+                                    </p>
+                                </div>
+                                <label class="businessbot-toggle" for="chatbot_debug_mode">
+                                    <input type="checkbox" name="chatbot_debug_mode" id="chatbot_debug_mode" value="yes" <?php checked('yes', $chatbot_debug_mode); ?> />
+                                    <span class="businessbot-toggle-slider" aria-hidden="true"></span>
+                                </label>
                             </div>
                         </div>
 

@@ -76,7 +76,7 @@ function businessbot_chat_assist_test_connection_ajax() {
         ? businessbot_chat_assist_build_runtime_model_chain($api_key)
         : ['gemini-2.5-flash', 'gemini-2.0-flash'];
 
-    $max_attempts = 2;
+    $max_attempts = max(1, count($model_chain));
     $attempts = 0;
     foreach ($model_chain as $model) {
         $attempts++;
@@ -87,6 +87,18 @@ function businessbot_chat_assist_test_connection_ajax() {
         $result = function_exists('businessbot_chat_assist_call_gemini_model')
             ? businessbot_chat_assist_call_gemini_model($api_key, $model, $payload)
             : ['success' => false, 'retry_next' => true];
+
+        if (function_exists('businessbot_chat_assist_debug_log')) {
+            businessbot_chat_assist_debug_log('test_connection_attempt', [
+                'attempt' => $attempts,
+                'max_attempts' => $max_attempts,
+                'model' => $model,
+                'success' => !empty($result['success']) ? 'yes' : 'no',
+                'retry_next' => !empty($result['retry_next']) ? 'yes' : 'no',
+                'status_code' => (string) ($result['status_code'] ?? ''),
+                'error_message' => (string) ($result['error_message'] ?? ''),
+            ]);
+        }
 
         if (!empty($result['success'])) {
             update_option('businessbot_api_last_test', 'success');

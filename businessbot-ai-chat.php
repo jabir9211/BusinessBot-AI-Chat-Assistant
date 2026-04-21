@@ -44,6 +44,7 @@ require_once BUSSINESSBOT_DIR . 'admin/admin-settings.php';
 require_once BUSSINESSBOT_DIR . 'admin/settings.php';
 require_once BUSSINESSBOT_DIR . 'admin/api-integration.php';
 require_once BUSSINESSBOT_DIR . 'admin/how-to-use.php';
+require_once BUSSINESSBOT_DIR . 'admin/logs.php';
 require_once BUSSINESSBOT_DIR . 'includes/propmt-callback.php';
 require_once BUSSINESSBOT_DIR . 'includes/chat-ui.php';
 

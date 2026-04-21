@@ -14,6 +14,10 @@ function businessbot_chat_assist_settings_init() {
     register_setting('businessbot_api_options', 'businessbot_api_key', [
         'sanitize_callback' => 'businessbot_chat_assist_sanitize_api_key',
     ]);
+
+    register_setting('businessbot_api_options', 'businessbot_debug_mode', [
+        'sanitize_callback' => 'businessbot_chat_assist_sanitize_yes_no_option',
+    ]);
 }
 
 function businessbot_chat_assist_sanitize_api_key($input) {
@@ -68,6 +72,10 @@ function businessbot_chat_assist_sanitize_business_data($input) {
     }
 
     return $output;
+}
+
+function businessbot_chat_assist_sanitize_yes_no_option($input) {
+    return ('yes' === sanitize_text_field((string) $input)) ? 'yes' : 'no';
 }
 
 function businessbot_chat_assist_enqueue_admin_details_assets($hook) {

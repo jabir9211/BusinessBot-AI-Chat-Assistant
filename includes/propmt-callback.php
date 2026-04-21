@@ -6,6 +6,37 @@ if (!session_id()) {
     session_start();
 }
 
+function businessbot_chat_assist_is_debug_enabled() {
+    if (defined('BUSINESSBOT_DEBUG') && BUSINESSBOT_DEBUG) {
+        return true;
+    }
+
+    return 'yes' === get_option('businessbot_debug_mode', 'no');
+}
+
+function businessbot_chat_assist_debug_log($event, $context = []) {
+    if (!businessbot_chat_assist_is_debug_enabled()) {
+        return;
+    }
+
+    $safe_context = [];
+    foreach ((array) $context as $key => $value) {
+        $safe_key = sanitize_key((string) $key);
+
+        if (is_scalar($value) || null === $value) {
+            $safe_context[$safe_key] = sanitize_text_field((string) $value);
+        } elseif (is_array($value)) {
+            $safe_context[$safe_key] = array_map(function ($item) {
+                return is_scalar($item) ? sanitize_text_field((string) $item) : '[complex]';
+            }, $value);
+        } else {
+            $safe_context[$safe_key] = '[complex]';
+        }
+    }
+
+    error_log('[BusinessBot Debug] ' . sanitize_text_field((string) $event) . ' ' . wp_json_encode($safe_context));
+}
+
 // Generate system prompt with business data
 function businessbot_chat_assist_generate_prompt() {
     $options = get_option('businessbot_data');
@@ -94,6 +125,7 @@ function businessbot_chat_assist_query_gemini($user_input) {
         ];
     }
 
+    businessbot_chat_assist_trim_chat_session();
     $validated_contents = businessbot_chat_assist_get_sanitized_chat_session();
 
     $payload = [
@@ -101,8 +133,14 @@ function businessbot_chat_assist_query_gemini($user_input) {
     ];
 
     $model_chain = businessbot_chat_assist_build_runtime_model_chain($api_key);
+    businessbot_chat_assist_debug_log('chat_request_start', [
+        'chain' => $model_chain,
+        'history_turns' => count($validated_contents),
+        'input_len' => strlen((string) $user_input),
+    ]);
+
     $last_error = businessbot_chat_assist_get_service_unavailable_message();
-    $max_attempts = 3;
+    $max_attempts = max(1, count($model_chain));
     $attempts = 0;
 
     foreach ($model_chain as $model) {
@@ -112,12 +150,26 @@ function businessbot_chat_assist_query_gemini($user_input) {
         }
 
         $result = businessbot_chat_assist_call_gemini_model($api_key, $model, $payload);
+        businessbot_chat_assist_debug_log('chat_model_attempt', [
+            'attempt' => $attempts,
+            'max_attempts' => $max_attempts,
+            'model' => $model,
+            'success' => !empty($result['success']) ? 'yes' : 'no',
+            'retry_next' => !empty($result['retry_next']) ? 'yes' : 'no',
+            'status_code' => (string) ($result['status_code'] ?? ''),
+            'error_message' => (string) ($result['error_message'] ?? ''),
+        ]);
+
         if ($result['success']) {
             $reply = businessbot_chat_assist_normalize_assistant_reply($result['reply']);
             $_SESSION['businessbot_chat'][] = [
                 'role'  => 'model',
                 'parts' => [['text' => $reply]]
             ];
+            businessbot_chat_assist_debug_log('chat_model_success', [
+                'model' => $model,
+                'reply_len' => strlen((string) $reply),
+            ]);
             return wp_kses_post($reply);
         }
 
@@ -133,14 +185,21 @@ function businessbot_chat_assist_query_gemini($user_input) {
             'role'  => 'model',
             'parts' => [['text' => $fallback_reply]]
         ];
+        businessbot_chat_assist_debug_log('chat_local_fallback_used', [
+            'reply_len' => strlen((string) $fallback_reply),
+        ]);
         return wp_kses_post($fallback_reply);
     }
 
+    businessbot_chat_assist_debug_log('chat_request_failed', [
+        'last_error' => (string) $last_error,
+    ]);
     return businessbot_chat_assist_normalize_assistant_reply($last_error);
 }
 
 function businessbot_chat_assist_get_sanitized_chat_session() {
     $output = [];
+    $last_role = '';
 
     if (!isset($_SESSION['businessbot_chat']) || !is_array($_SESSION['businessbot_chat'])) {
         return $output;
@@ -164,15 +223,61 @@ function businessbot_chat_assist_get_sanitized_chat_session() {
             }
 
             if (!empty($sanitized_parts)) {
-                $output[] = [
-                    'role'  => sanitize_text_field($entry['role']),
-                    'parts' => $sanitized_parts
-                ];
+                $current_role = sanitize_text_field($entry['role']);
+
+                // Keep Gemini history valid by avoiding consecutive turns with the same role.
+                if (!empty($output) && $current_role === $last_role) {
+                    $last_index = count($output) - 1;
+                    $joined_text = '';
+
+                    foreach ($sanitized_parts as $sanitized_part) {
+                        if (isset($sanitized_part['text']) && '' !== trim((string) $sanitized_part['text'])) {
+                            if ('' !== $joined_text) {
+                                $joined_text .= "\n";
+                            }
+                            $joined_text .= (string) $sanitized_part['text'];
+                        }
+                    }
+
+                    if ('' !== $joined_text) {
+                        $existing_text = '';
+                        if (isset($output[$last_index]['parts'][0]['text']) && is_string($output[$last_index]['parts'][0]['text'])) {
+                            $existing_text = $output[$last_index]['parts'][0]['text'];
+                        }
+
+                        $output[$last_index]['parts'][0]['text'] = '' !== $existing_text
+                            ? $existing_text . "\n" . $joined_text
+                            : $joined_text;
+                    }
+                } else {
+                    $output[] = [
+                        'role'  => $current_role,
+                        'parts' => $sanitized_parts
+                    ];
+                    $last_role = $current_role;
+                }
             }
         }
     }
 
     return $output;
+}
+
+function businessbot_chat_assist_trim_chat_session($max_entries = 18) {
+    if (!isset($_SESSION['businessbot_chat']) || !is_array($_SESSION['businessbot_chat'])) {
+        return;
+    }
+
+    $chat = array_values($_SESSION['businessbot_chat']);
+    $count = count($chat);
+    if ($count <= $max_entries) {
+        return;
+    }
+
+    // Keep the first turn (contains the business system prompt) and recent turns.
+    $first = $chat[0];
+    $tail = array_slice($chat, -($max_entries - 1));
+    $_SESSION['businessbot_chat'] = array_merge([$first], $tail);
 }
 
 function businessbot_chat_assist_get_model_fallback_chain() {
@@ -205,7 +310,7 @@ function businessbot_chat_assist_call_gemini_model($api_key, $model, $payload) {
         ],
         'body'    => wp_json_encode($payload),
         'method'  => 'POST',
-        'timeout' => 15,
+        'timeout' => 25,
     ]);
 
     if (is_wp_error($response)) {
@@ -290,6 +395,10 @@ function businessbot_chat_assist_is_retryable_model_error($status_code, $error_m
         'temporarily unavailable',
         'model not found',
         'not found',
+        'internal',
+        'backend error',
+        'try again',
+        'timed out',
     ];
 
     foreach ($retry_tokens as $token) {
