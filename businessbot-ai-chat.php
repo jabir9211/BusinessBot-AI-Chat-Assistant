@@ -59,6 +59,12 @@ add_action('plugins_loaded', function () {
 add_action('wp_enqueue_scripts', 'businessbot_chat_assist_enqueue_scripts');
 function businessbot_chat_assist_enqueue_scripts() {
     wp_enqueue_script('jquery');
+    $css_version = file_exists(BUSSINESSBOT_DIR . 'assets/css/ai-chat.css')
+        ? filemtime(BUSSINESSBOT_DIR . 'assets/css/ai-chat.css')
+        : BUSSINESSBOT_VERSION;
+    $js_version = file_exists(BUSSINESSBOT_DIR . 'assets/js/chat-front.js')
+        ? filemtime(BUSSINESSBOT_DIR . 'assets/js/chat-front.js')
+        : BUSSINESSBOT_VERSION;
 
     wp_enqueue_style(
         'font-awesome',
@@ -71,7 +77,7 @@ function businessbot_chat_assist_enqueue_scripts() {
         'ai-chat-style',
         plugins_url('assets/css/ai-chat.css', __FILE__),
         [],
-        time()
+        $css_version
     );
 
     // Replaces external Marked.js
@@ -87,7 +93,7 @@ function businessbot_chat_assist_enqueue_scripts() {
         'chat-front-js',
         plugins_url('assets/js/chat-front.js', __FILE__),
         ['jquery'],
-        BUSSINESSBOT_VERSION, 
+        $js_version,
         true
     );
 

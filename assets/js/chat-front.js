@@ -1,20 +1,7 @@
 jQuery(document).ready(function ($) {
-    const aiAssistant = BusinessBotData.plugin_url + 'assets/Images/ai-assisstant-logo.avif';
-    const userIcon = BusinessBotData.plugin_url + 'assets/Images/user-icon.avif';
     const chat_open_once = BusinessBotData.chat_open_once;
-    
-    // Update launcher icon based on chat visibility
-    function updateLauncherIcon() {
-        const icon = $('#ai-chat-launcher i');
-        if ($('#ai-chat-widget').is(':visible')) {
-            icon.removeClass('fa-comments').addClass('fa-times');
-        } else {
-            icon.removeClass('fa-times').addClass('fa-comments');
-        }
-    }
-    window.updateLauncherIcon = updateLauncherIcon;
+    let isMinimized = false;
 
-    // Scroll the chat container to newly added message
     function scrollToMessage($el) {
         const $container = $('#ai-chat-messages');
         $container.stop().animate({
@@ -22,16 +9,28 @@ jQuery(document).ready(function ($) {
         }, 400);
     }
 
-    // Append a chat message
+    function getTimestamp() {
+        return new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    }
+
+    function setWidgetBodyState(minimized) {
+        isMinimized = minimized;
+        $('#ai-chat-widget').toggleClass('is-minimized', minimized);
+        $('.ai-minimize-icon').attr('data-state', minimized ? 'minimized' : 'open');
+    }
+
+    function ensureInitialMessage() {
+        if ($('#ai-chat-messages').children().length === 0) {
+            appendMessage('assistant', BusinessBotData.start_message);
+        }
+    }
+
     function appendMessage(sender, message) {
         const content = typeof marked !== 'undefined' ? marked.parse(message) : $('<div>').text(message).html();
-        const imgSrc = sender === 'user' ? userIcon : aiAssistant;
-        const altText = sender === 'user' ? 'You' : 'AI Assistant';
-
         const $message = $(`
             <div class="ai-message-row ${sender}" style="opacity: 0; transform: translateY(10px);">
-                <img src="${imgSrc}" alt="${altText}" loading="lazy">
                 <div class="bubble">${content}</div>
+                <div class="ai-message-time">${getTimestamp()}${sender === 'user' ? ' \u2713\u2713' : ''}</div>
             </div>
         `);
 
@@ -51,13 +50,14 @@ jQuery(document).ready(function ($) {
 
     window.appendMessage = appendMessage; // For use outside jQuery init
 
-    // Typing indicator animation
     function showTypingIndicator() {
         const $typing = $(`
-            <div class="assistant typing-indicator">
-                <img src="${aiAssistant}" alt="Bot">
-                <div class="bubble typing-dots">
-                    <span>.</span><span>.</span><span>.</span>
+            <div class="ai-message-row assistant typing-indicator">
+                <div class="bubble">
+                    <span class="typing-label">Typing</span>
+                    <span class="typing-dots" aria-hidden="true">
+                        <span></span><span></span><span></span>
+                    </span>
                 </div>
             </div>
         `);
@@ -69,7 +69,6 @@ jQuery(document).ready(function ($) {
         $('.typing-indicator').remove();
     }
 
-    // Handle sending a user message
     function sendUserMessage() {
         const message = $('#ai-chat-input').val().trim();
         if (!message) return;
@@ -87,35 +86,36 @@ jQuery(document).ready(function ($) {
 
             const reply = response.success
                 ? response.data
-                : '⚠️ Sorry, something went wrong. Please try again later.';
+                : 'Sorry, something went wrong. Please try again later.';
 
             appendMessage('assistant', reply);
         }).fail(() => {
             removeTypingIndicator();
-            appendMessage('assistant', '⚠️ Unable to connect. Please check your internet connection.');
+            appendMessage('assistant', 'Unable to connect. Please check your internet connection.');
         });
     }
 
-    // Toggle chat widget
-    $('#ai-chat-launcher').on('click', function () {
-        $('#ai-chat-widget').slideToggle(() => {
-            updateLauncherIcon();
+    $('#ai-chat-minimize').on('click', function () {
+        setWidgetBodyState(!isMinimized);
+    });
 
-            if ($('#ai-chat-messages').children().length === 0) {
-                appendMessage('assistant', BusinessBotData.start_message);
-            }
+    $('#ai-chat-close').on('click', function () {
+        setWidgetBodyState(false);
+        $('#ai-chat-widget').fadeOut(150, function () {
+            $('#ai-chat-launcher').css('display', 'inline-flex').hide().fadeIn(120);
         });
     });
 
-    // Close button
-    $('#ai-chat-close').on('click', function () {
-        $('#ai-chat-widget').slideUp(updateLauncherIcon);
+    $('#ai-chat-launcher').on('click', function () {
+        $('#ai-chat-launcher').hide();
+        $('#ai-chat-widget').fadeIn(160, function () {
+            ensureInitialMessage();
+        });
+        setWidgetBodyState(false);
     });
 
-    // Send button click
     $('#ai-chat-send').on('click', sendUserMessage);
 
-    // Press Enter to send
     $('#ai-chat-input').on('keypress', function (e) {
         if (e.which === 13 && !e.shiftKey) {
             e.preventDefault();
@@ -123,35 +123,25 @@ jQuery(document).ready(function ($) {
         }
     });
 
-    // Auto-open after load
     $(window).on('load', function () {
-        // Check parent condition
         if (chat_open_once === 'yes') {
-            // Only open if not opened once in this session
             if (!sessionStorage.getItem('chatOpenedOnce')) {
                 setTimeout(() => {
-                    $('#ai-chat-widget').slideDown(() => {
-                        updateLauncherIcon();
-
-                        if ($('#ai-chat-messages').children().length === 0) {
-                            appendMessage('assistant', BusinessBotData.start_message);
-                        }
+                    setWidgetBodyState(false);
+                    $('#ai-chat-widget').fadeIn(180, function () {
+                        ensureInitialMessage();
                     });
 
-                    // Mark as opened once
                     sessionStorage.setItem('chatOpenedOnce', 'true');
                 }, 800);
+            } else {
+                $('#ai-chat-launcher').css('display', 'inline-flex').hide().fadeIn(120);
             }
-            // else → do nothing (show only launcher)
         } else {
-            // Original behavior: open every page load
             setTimeout(() => {
-                $('#ai-chat-widget').slideDown(() => {
-                    updateLauncherIcon();
-
-                    if ($('#ai-chat-messages').children().length === 0) {
-                        appendMessage('assistant', BusinessBotData.start_message);
-                    }
+                setWidgetBodyState(false);
+                $('#ai-chat-widget').fadeIn(180, function () {
+                    ensureInitialMessage();
                 });
             }, 800);
         }
