@@ -8,10 +8,10 @@ Author URI: https://mohammedjabir.com/
 Contributors: jabir20
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Text Domain: businessbot-ai-chat
+Text Domain: ai-chat-assistant-for-business
 Requires PHP: 7.4
 Requires at least: 5.5
-Tested up to: 6.9.4
+Tested up to: 6.9
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -36,7 +36,8 @@ defined('ABSPATH') || exit;
 // Constants
 define('BUSSINESSBOT_DIR', plugin_dir_path(__FILE__));
 define('BUSSINESSBOT_URL', plugin_dir_url(__FILE__));
-define('BUSSINESSBOT_VERSION', '2.0');
+// define('BUSSINESSBOT_VERSION', '2.0');
+define('BUSSINESSBOT_VERSION', time());
 
 // Include core files
 require_once BUSSINESSBOT_DIR . 'admin/menus.php';

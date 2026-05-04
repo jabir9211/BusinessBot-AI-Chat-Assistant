@@ -6,6 +6,7 @@ add_action('admin_enqueue_scripts', 'businessbot_chat_assist_enqueue_admin_integ
 add_action('wp_ajax_businessbot_test_connection', 'businessbot_chat_assist_test_connection_ajax');
 
 function businessbot_chat_assist_enqueue_admin_integration_assets() {
+    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin page routing parameter.
     $current_page = isset($_GET['page']) ? sanitize_key(wp_unslash($_GET['page'])) : '';
     if ('businessbot-integration' !== $current_page) {
         return;
@@ -34,10 +35,10 @@ function businessbot_chat_assist_enqueue_admin_integration_assets() {
     wp_localize_script('businessbot-admin-api-integration', 'BusinessBotIntegrationData', [
         'ajax_url' => admin_url('admin-ajax.php'),
         'nonce' => wp_create_nonce('businessbot_integration_nonce'),
-        'test_connection_label' => __('Test Connection', 'businessbot-ai-chat'),
-        'testing_label' => __('Testing...', 'businessbot-ai-chat'),
-        'save_success' => __('API key saved', 'businessbot-ai-chat'),
-        'copy_success' => __('API key copied', 'businessbot-ai-chat'),
+        'test_connection_label' => __('Test Connection', 'ai-chat-assistant-for-business'),
+        'testing_label' => __('Testing...', 'ai-chat-assistant-for-business'),
+        'save_success' => __('API key saved', 'ai-chat-assistant-for-business'),
+        'copy_success' => __('API key copied', 'ai-chat-assistant-for-business'),
     ]);
 }
 
@@ -45,7 +46,7 @@ function businessbot_chat_assist_test_connection_ajax() {
     check_ajax_referer('businessbot_integration_nonce', '_ajax_nonce');
 
     if (!current_user_can('manage_options')) {
-        wp_send_json_error(__('You are not allowed to do this action.', 'businessbot-ai-chat'));
+        wp_send_json_error(__('You are not allowed to do this action.', 'ai-chat-assistant-for-business'));
     }
 
     $api_key = isset($_POST['api_key']) ? sanitize_text_field(wp_unslash($_POST['api_key'])) : '';
@@ -53,12 +54,12 @@ function businessbot_chat_assist_test_connection_ajax() {
 
     if ('' === $api_key) {
         update_option('businessbot_api_last_test', 'error');
-        update_option('businessbot_api_last_test_message', __('API key missing. Please enter your key and test again.', 'businessbot-ai-chat'));
+        update_option('businessbot_api_last_test_message', __('API key missing. Please enter your key and test again.', 'ai-chat-assistant-for-business'));
         update_option('businessbot_api_last_test_model', '');
         update_option('businessbot_api_last_test_http_code', 0);
-        update_option('businessbot_api_last_test_error', __('API key missing.', 'businessbot-ai-chat'));
+        update_option('businessbot_api_last_test_error', __('API key missing.', 'ai-chat-assistant-for-business'));
         update_option('businessbot_api_last_test_time', time());
-        wp_send_json_error(__('API key missing. Please enter your key and test again.', 'businessbot-ai-chat'));
+        wp_send_json_error(__('API key missing. Please enter your key and test again.', 'ai-chat-assistant-for-business'));
     }
 
     $payload = [
@@ -102,17 +103,17 @@ function businessbot_chat_assist_test_connection_ajax() {
 
         if (!empty($result['success'])) {
             update_option('businessbot_api_last_test', 'success');
-            update_option('businessbot_api_last_test_message', __('Connection successful. AI is working.', 'businessbot-ai-chat'));
+            update_option('businessbot_api_last_test_message', __('Connection successful. AI is working.', 'ai-chat-assistant-for-business'));
             update_option('businessbot_api_last_test_model', sanitize_text_field($result['model'] ?? $model));
             update_option('businessbot_api_last_test_http_code', (int) ($result['status_code'] ?? 200));
             update_option('businessbot_api_last_test_error', '');
             update_option('businessbot_api_last_test_time', time());
-            wp_send_json_success(__('Connection successful. AI is working.', 'businessbot-ai-chat'));
+            wp_send_json_success(__('Connection successful. AI is working.', 'ai-chat-assistant-for-business'));
         }
 
         update_option('businessbot_api_last_test_model', sanitize_text_field($result['model'] ?? $model));
         update_option('businessbot_api_last_test_http_code', (int) ($result['status_code'] ?? 0));
-        update_option('businessbot_api_last_test_error', sanitize_text_field($result['error_message'] ?? __('Unknown error.', 'businessbot-ai-chat')));
+        update_option('businessbot_api_last_test_error', sanitize_text_field($result['error_message'] ?? __('Unknown error.', 'ai-chat-assistant-for-business')));
         update_option('businessbot_api_last_test_time', time());
 
         if (isset($result['retry_next']) && !$result['retry_next']) {
@@ -121,8 +122,8 @@ function businessbot_chat_assist_test_connection_ajax() {
     }
 
     update_option('businessbot_api_last_test', 'error');
-    update_option('businessbot_api_last_test_message', __('Invalid API key or network issue.', 'businessbot-ai-chat'));
-    wp_send_json_error(__('Invalid API key or network issue.', 'businessbot-ai-chat'));
+    update_option('businessbot_api_last_test_message', __('Invalid API key or network issue.', 'ai-chat-assistant-for-business'));
+    wp_send_json_error(__('Invalid API key or network issue.', 'ai-chat-assistant-for-business'));
 }
 
 function businessbot_chat_assist_integration_page() {
@@ -133,21 +134,21 @@ function businessbot_chat_assist_integration_page() {
     $last_test_error = get_option('businessbot_api_last_test_error', '');
     $last_test_time = (int) get_option('businessbot_api_last_test_time', 0);
     $status = 'not_connected';
-    $status_text = __('Not Connected', 'businessbot-ai-chat');
-    $status_message = __('API key missing or invalid. Chatbot will not respond.', 'businessbot-ai-chat');
+    $status_text = __('Not Connected', 'ai-chat-assistant-for-business');
+    $status_message = __('API key missing or invalid. Chatbot will not respond.', 'ai-chat-assistant-for-business');
 
     if (!empty($api_key) && 'success' === $test_state) {
         $status = 'connected';
-        $status_text = __('Connected', 'businessbot-ai-chat');
-        $status_message = __('Your AI is successfully connected and ready.', 'businessbot-ai-chat');
+        $status_text = __('Connected', 'ai-chat-assistant-for-business');
+        $status_message = __('Your AI is successfully connected and ready.', 'ai-chat-assistant-for-business');
     } elseif (!empty($api_key) && 'error' !== $test_state) {
         $status = 'not_set';
-        $status_text = __('Not Tested', 'businessbot-ai-chat');
-        $status_message = __('API key is saved. Run Test Connection to confirm it is working.', 'businessbot-ai-chat');
+        $status_text = __('Not Tested', 'ai-chat-assistant-for-business');
+        $status_message = __('API key is saved. Run Test Connection to confirm it is working.', 'ai-chat-assistant-for-business');
     } elseif (!empty($api_key) && 'error' === $test_state) {
         $status = 'not_connected';
-        $status_text = __('Not Connected', 'businessbot-ai-chat');
-        $status_message = __('API key missing or invalid. Chatbot will not respond.', 'businessbot-ai-chat');
+        $status_text = __('Not Connected', 'ai-chat-assistant-for-business');
+        $status_message = __('API key missing or invalid. Chatbot will not respond.', 'ai-chat-assistant-for-business');
     }
 
     $masked_key = '';
@@ -166,17 +167,17 @@ function businessbot_chat_assist_integration_page() {
             <div class="businessbot-profile-wrap businessbot-settings-wrap">
                 <div class="businessbot-page-header">
                     <div>
-                        <h1><?php esc_html_e('API Integration', 'businessbot-ai-chat'); ?></h1>
-                        <p><?php esc_html_e('Connect your AI assistant to Google Gemini to enable smart responses.', 'businessbot-ai-chat'); ?></p>
+                        <h1><?php esc_html_e('API Integration', 'ai-chat-assistant-for-business'); ?></h1>
+                        <p><?php esc_html_e('Connect your AI assistant to Google Gemini to enable smart responses.', 'ai-chat-assistant-for-business'); ?></p>
                     </div>
                 </div>
 
                 <div class="businessbot-settings-grid businessbot-integration-grid">
                     <div>
                         <div class="businessbot-card">
-                            <h2><span class="dashicons dashicons-admin-links"></span><?php esc_html_e('Connection Status', 'businessbot-ai-chat'); ?></h2>
+                            <h2><span class="dashicons dashicons-admin-links"></span><?php esc_html_e('Connection Status', 'ai-chat-assistant-for-business'); ?></h2>
                             <div class="businessbot-field">
-                                <label><?php esc_html_e('Gemini API Connection', 'businessbot-ai-chat'); ?></label>
+                                <label><?php esc_html_e('Gemini API Connection', 'ai-chat-assistant-for-business'); ?></label>
                                 <div id="businessbot-api-status" class="businessbot-status-pill <?php echo ('connected' === $status) ? 'is-active' : (('not_connected' === $status) ? 'is-error' : 'is-disabled'); ?>">
                                     <span class="dot" aria-hidden="true"></span>
                                     <span class="state-text"><?php echo esc_html($status_text); ?></span>
@@ -185,65 +186,65 @@ function businessbot_chat_assist_integration_page() {
                             </div>
 
                             <div class="businessbot-field">
-                                <label for="businessbot_api_key_field"><?php esc_html_e('API Key', 'businessbot-ai-chat'); ?></label>
+                                <label for="businessbot_api_key_field"><?php esc_html_e('API Key', 'ai-chat-assistant-for-business'); ?></label>
                                 <div class="businessbot-input-group">
                                     <input
                                         id="businessbot_api_key_field"
                                         type="password"
                                         name="businessbot_api_key"
                                         value="<?php echo esc_attr($api_key); ?>"
-                                        placeholder="<?php esc_attr_e('Enter your Gemini API key', 'businessbot-ai-chat'); ?>"
+                                        placeholder="<?php esc_attr_e('Enter your Gemini API key', 'ai-chat-assistant-for-business'); ?>"
                                         data-masked="<?php echo esc_attr($masked_key); ?>"
                                     >
-                                    <button class="button" type="button" id="businessbot-toggle-key"><?php esc_html_e('Show', 'businessbot-ai-chat'); ?></button>
-                                    <button class="button" type="button" id="businessbot-copy-key"><?php esc_html_e('Copy', 'businessbot-ai-chat'); ?></button>
+                                    <button class="button" type="button" id="businessbot-toggle-key"><?php esc_html_e('Show', 'ai-chat-assistant-for-business'); ?></button>
+                                    <button class="button" type="button" id="businessbot-copy-key"><?php esc_html_e('Copy', 'ai-chat-assistant-for-business'); ?></button>
                                 </div>
-                                <p class="businessbot-help"><?php esc_html_e('Your API key is stored securely in your WordPress database and never exposed publicly.', 'businessbot-ai-chat'); ?></p>
+                                <p class="businessbot-help"><?php esc_html_e('Your API key is stored securely in your WordPress database and never exposed publicly.', 'ai-chat-assistant-for-business'); ?></p>
                                 <p id="businessbot-api-inline-feedback" class="businessbot-help"></p>
                             </div>
 
                             <div class="businessbot-actions-row">
-                                <button type="submit" class="button button-primary" id="businessbot-save-key-btn"><?php esc_html_e('Save Key', 'businessbot-ai-chat'); ?></button>
-                                <button type="button" class="button" id="businessbot-test-connection-btn"><?php esc_html_e('Test Connection', 'businessbot-ai-chat'); ?></button>
+                                <button type="submit" class="button button-primary" id="businessbot-save-key-btn"><?php esc_html_e('Save Key', 'ai-chat-assistant-for-business'); ?></button>
+                                <button type="button" class="button" id="businessbot-test-connection-btn"><?php esc_html_e('Test Connection', 'ai-chat-assistant-for-business'); ?></button>
                                 <span class="spinner" id="businessbot-test-spinner"></span>
                             </div>
 
                             <div class="businessbot-trust-list">
-                                <div><span class="dashicons dashicons-lock"></span><?php esc_html_e('Secure Storage: Your key is stored safely in WordPress.', 'businessbot-ai-chat'); ?></div>
-                                <div><span class="dashicons dashicons-lightning"></span><?php esc_html_e('Real-time AI Responses: Powered by Google Gemini.', 'businessbot-ai-chat'); ?></div>
+                                <div><span class="dashicons dashicons-lock"></span><?php esc_html_e('Secure Storage: Your key is stored safely in WordPress.', 'ai-chat-assistant-for-business'); ?></div>
+                                <div><span class="dashicons dashicons-lightning"></span><?php esc_html_e('Real-time AI Responses: Powered by Google Gemini.', 'ai-chat-assistant-for-business'); ?></div>
                             </div>
                         </div>
 
                         <div class="businessbot-card">
-                            <h2><span class="dashicons dashicons-admin-tools"></span><?php esc_html_e('Diagnostics', 'businessbot-ai-chat'); ?></h2>
+                            <h2><span class="dashicons dashicons-admin-tools"></span><?php esc_html_e('Diagnostics', 'ai-chat-assistant-for-business'); ?></h2>
                             <div class="businessbot-diagnostics-grid">
-                                <div><strong><?php esc_html_e('Last status:', 'businessbot-ai-chat'); ?></strong> <?php echo esc_html(ucfirst((string) $test_state ?: __('Not tested', 'businessbot-ai-chat'))); ?></div>
-                                <div><strong><?php esc_html_e('Last model:', 'businessbot-ai-chat'); ?></strong> <?php echo esc_html($last_test_model ?: __('N/A', 'businessbot-ai-chat')); ?></div>
-                                <div><strong><?php esc_html_e('HTTP code:', 'businessbot-ai-chat'); ?></strong> <?php echo esc_html($last_test_http_code > 0 ? (string) $last_test_http_code : __('N/A', 'businessbot-ai-chat')); ?></div>
-                                <div><strong><?php esc_html_e('Last checked:', 'businessbot-ai-chat'); ?></strong> <?php echo esc_html($last_test_time ? wp_date(get_option('date_format') . ' ' . get_option('time_format'), $last_test_time) : __('N/A', 'businessbot-ai-chat')); ?></div>
+                                <div><strong><?php esc_html_e('Last status:', 'ai-chat-assistant-for-business'); ?></strong> <?php echo esc_html(ucfirst((string) $test_state ?: __('Not tested', 'ai-chat-assistant-for-business'))); ?></div>
+                                <div><strong><?php esc_html_e('Last model:', 'ai-chat-assistant-for-business'); ?></strong> <?php echo esc_html($last_test_model ?: __('N/A', 'ai-chat-assistant-for-business')); ?></div>
+                                <div><strong><?php esc_html_e('HTTP code:', 'ai-chat-assistant-for-business'); ?></strong> <?php echo esc_html($last_test_http_code > 0 ? (string) $last_test_http_code : __('N/A', 'ai-chat-assistant-for-business')); ?></div>
+                                <div><strong><?php esc_html_e('Last checked:', 'ai-chat-assistant-for-business'); ?></strong> <?php echo esc_html($last_test_time ? wp_date(get_option('date_format') . ' ' . get_option('time_format'), $last_test_time) : __('N/A', 'ai-chat-assistant-for-business')); ?></div>
                             </div>
                             <?php if (!empty($last_test_error)) : ?>
-                                <p class="businessbot-help businessbot-inline-error"><strong><?php esc_html_e('Last error:', 'businessbot-ai-chat'); ?></strong> <?php echo esc_html($last_test_error); ?></p>
+                                <p class="businessbot-help businessbot-inline-error"><strong><?php esc_html_e('Last error:', 'ai-chat-assistant-for-business'); ?></strong> <?php echo esc_html($last_test_error); ?></p>
                             <?php endif; ?>
                         </div>
                     </div>
 
                     <div>
                         <div class="businessbot-card">
-                            <h2><span class="dashicons dashicons-welcome-learn-more"></span><?php esc_html_e('Get Your Gemini API Key', 'businessbot-ai-chat'); ?></h2>
+                            <h2><span class="dashicons dashicons-welcome-learn-more"></span><?php esc_html_e('Get Your Gemini API Key', 'ai-chat-assistant-for-business'); ?></h2>
                             <div class="businessbot-step-list">
                                 <div class="businessbot-step">
-                                    <strong><?php esc_html_e('Step 1:', 'businessbot-ai-chat'); ?></strong>
-                                    <span><?php esc_html_e('Open Google AI Studio', 'businessbot-ai-chat'); ?></span>
+                                    <strong><?php esc_html_e('Step 1:', 'ai-chat-assistant-for-business'); ?></strong>
+                                    <span><?php esc_html_e('Open Google AI Studio', 'ai-chat-assistant-for-business'); ?></span>
                                 </div>
-                                <a class="button button-secondary" href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer"><?php esc_html_e('Open Google AI Studio', 'businessbot-ai-chat'); ?></a>
-                                <div class="businessbot-step"><strong><?php esc_html_e('Step 2:', 'businessbot-ai-chat'); ?></strong><span><?php esc_html_e('Login with your Google account.', 'businessbot-ai-chat'); ?></span></div>
-                                <div class="businessbot-step"><strong><?php esc_html_e('Step 3:', 'businessbot-ai-chat'); ?></strong><span><?php esc_html_e('Click "Get API Key".', 'businessbot-ai-chat'); ?></span></div>
-                                <div class="businessbot-step"><strong><?php esc_html_e('Step 4:', 'businessbot-ai-chat'); ?></strong><span><?php esc_html_e('Create a new API key.', 'businessbot-ai-chat'); ?></span></div>
-                                <div class="businessbot-step"><strong><?php esc_html_e('Step 5:', 'businessbot-ai-chat'); ?></strong><span><?php esc_html_e('Copy the key and paste it in the field.', 'businessbot-ai-chat'); ?></span></div>
+                                <a class="button button-secondary" href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer"><?php esc_html_e('Open Google AI Studio', 'ai-chat-assistant-for-business'); ?></a>
+                                <div class="businessbot-step"><strong><?php esc_html_e('Step 2:', 'ai-chat-assistant-for-business'); ?></strong><span><?php esc_html_e('Login with your Google account.', 'ai-chat-assistant-for-business'); ?></span></div>
+                                <div class="businessbot-step"><strong><?php esc_html_e('Step 3:', 'ai-chat-assistant-for-business'); ?></strong><span><?php esc_html_e('Click "Get API Key".', 'ai-chat-assistant-for-business'); ?></span></div>
+                                <div class="businessbot-step"><strong><?php esc_html_e('Step 4:', 'ai-chat-assistant-for-business'); ?></strong><span><?php esc_html_e('Create a new API key.', 'ai-chat-assistant-for-business'); ?></span></div>
+                                <div class="businessbot-step"><strong><?php esc_html_e('Step 5:', 'ai-chat-assistant-for-business'); ?></strong><span><?php esc_html_e('Copy the key and paste it in the field.', 'ai-chat-assistant-for-business'); ?></span></div>
                             </div>
                             <div class="businessbot-warning-box">
-                                <?php esc_html_e('Never share your API key publicly. Keep it confidential.', 'businessbot-ai-chat'); ?>
+                                <?php esc_html_e('Never share your API key publicly. Keep it confidential.', 'ai-chat-assistant-for-business'); ?>
                             </div>
                         </div>
                     </div>
@@ -251,21 +252,22 @@ function businessbot_chat_assist_integration_page() {
             </div>
         </form>
         <div id="businessbot-settings-toast" class="businessbot-toast" role="status" aria-live="polite"></div>
-        <?php if (isset($_GET['settings-updated'])) : ?>
+        <?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- WordPress core settings redirect flag.
+        if (isset($_GET['settings-updated'])) : ?>
             <script>
                 window.businessbotApiSaved = true;
             </script>
         <?php endif; ?>
         <script>
             window.businessbotApiUiData = <?php echo wp_json_encode([
-                'connected' => __('Connected', 'businessbot-ai-chat'),
-                'not_connected' => __('Not Connected', 'businessbot-ai-chat'),
-                'not_tested' => __('Not Tested', 'businessbot-ai-chat'),
-                'connected_message' => __('Your AI is successfully connected and ready.', 'businessbot-ai-chat'),
-                'disconnected_message' => __('API key missing or invalid. Chatbot will not respond.', 'businessbot-ai-chat'),
-                'not_tested_message' => __('API key is saved. Run Test Connection to confirm it is working.', 'businessbot-ai-chat'),
-                'show' => __('Show', 'businessbot-ai-chat'),
-                'hide' => __('Hide', 'businessbot-ai-chat'),
+                'connected' => __('Connected', 'ai-chat-assistant-for-business'),
+                'not_connected' => __('Not Connected', 'ai-chat-assistant-for-business'),
+                'not_tested' => __('Not Tested', 'ai-chat-assistant-for-business'),
+                'connected_message' => __('Your AI is successfully connected and ready.', 'ai-chat-assistant-for-business'),
+                'disconnected_message' => __('API key missing or invalid. Chatbot will not respond.', 'ai-chat-assistant-for-business'),
+                'not_tested_message' => __('API key is saved. Run Test Connection to confirm it is working.', 'ai-chat-assistant-for-business'),
+                'show' => __('Show', 'ai-chat-assistant-for-business'),
+                'hide' => __('Hide', 'ai-chat-assistant-for-business'),
             ]); ?>;
         </script>
     </div>

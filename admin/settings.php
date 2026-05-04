@@ -4,6 +4,7 @@ defined('ABSPATH') || exit;
 add_action('admin_enqueue_scripts', 'businessbot_chat_assist_enqueue_admin_settings_assets');
 
 function businessbot_chat_assist_enqueue_admin_settings_assets() {
+    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin page routing parameter.
     $current_page = isset($_GET['page']) ? sanitize_key(wp_unslash($_GET['page'])) : '';
     if ('businessbot-settings' !== $current_page) {
         return;
@@ -56,18 +57,18 @@ function businessbot_chat_assist_front_settings_page() {
             <div class="businessbot-profile-wrap businessbot-settings-wrap">
                 <?php if (isset($_POST['_wpnonce'])) : ?>
                     <div class="notice notice-success is-dismissible businessbot-notice">
-                        <p><strong><?php esc_html_e('Settings saved successfully.', 'businessbot-ai-chat'); ?></strong></p>
+                        <p><strong><?php esc_html_e('Settings saved successfully.', 'ai-chat-assistant-for-business'); ?></strong></p>
                     </div>
                 <?php endif; ?>
 
                 <div class="businessbot-page-header">
                     <div>
-                        <h1><?php esc_html_e('Chatbot Settings', 'businessbot-ai-chat'); ?></h1>
-                        <p><?php esc_html_e('Control how your AI chatbot appears and behaves on your website.', 'businessbot-ai-chat'); ?></p>
+                        <h1><?php esc_html_e('Chatbot Settings', 'ai-chat-assistant-for-business'); ?></h1>
+                        <p><?php esc_html_e('Control how your AI chatbot appears and behaves on your website.', 'ai-chat-assistant-for-business'); ?></p>
                     </div>
                     <div class="businessbot-header-actions">
                         <button type="submit" class="button button-primary button-large" id="businessbot-settings-save-top" disabled>
-                            <span class="businessbot-btn-text"><?php esc_html_e('Save Changes', 'businessbot-ai-chat'); ?></span>
+                            <span class="businessbot-btn-text"><?php esc_html_e('Save Changes', 'ai-chat-assistant-for-business'); ?></span>
                             <span class="spinner"></span>
                         </button>
                     </div>
@@ -76,18 +77,18 @@ function businessbot_chat_assist_front_settings_page() {
                 <div class="businessbot-settings-grid">
                     <div>
                         <div class="businessbot-card">
-                            <h2><span class="dashicons dashicons-format-chat"></span><?php esc_html_e('Chatbot Status', 'businessbot-ai-chat'); ?></h2>
+                            <h2><span class="dashicons dashicons-format-chat"></span><?php esc_html_e('Chatbot Status', 'ai-chat-assistant-for-business'); ?></h2>
                             <div class="businessbot-status-row">
                                 <div>
                                     <div class="businessbot-status-label">
-                                        <?php esc_html_e('Chatbot is:', 'businessbot-ai-chat'); ?>
+                                        <?php esc_html_e('Chatbot is:', 'ai-chat-assistant-for-business'); ?>
                                         <span id="businessbot-status-indicator" class="businessbot-status-pill <?php echo $is_enabled ? 'is-active' : 'is-disabled'; ?>">
                                             <span class="dot" aria-hidden="true"></span>
-                                            <span class="state-text"><?php echo $is_enabled ? esc_html__('Active', 'businessbot-ai-chat') : esc_html__('Disabled', 'businessbot-ai-chat'); ?></span>
+                                            <span class="state-text"><?php echo $is_enabled ? esc_html__('Active', 'ai-chat-assistant-for-business') : esc_html__('Disabled', 'ai-chat-assistant-for-business'); ?></span>
                                         </span>
                                     </div>
                                     <p id="businessbot-status-help" class="businessbot-help">
-                                        <?php echo $is_enabled ? esc_html__('Your chatbot is live and visible to visitors.', 'businessbot-ai-chat') : esc_html__('Chatbot is turned off and will not appear on your website.', 'businessbot-ai-chat'); ?>
+                                        <?php echo $is_enabled ? esc_html__('Your chatbot is live and visible to visitors.', 'ai-chat-assistant-for-business') : esc_html__('Chatbot is turned off and will not appear on your website.', 'ai-chat-assistant-for-business'); ?>
                                     </p>
                                 </div>
                                 <label class="businessbot-toggle" for="chatbot_enabled">
@@ -98,17 +99,17 @@ function businessbot_chat_assist_front_settings_page() {
                         </div>
 
                         <div class="businessbot-card">
-                            <h2><span class="dashicons dashicons-admin-generic"></span><?php esc_html_e('Behavior Settings', 'businessbot-ai-chat'); ?></h2>
+                            <h2><span class="dashicons dashicons-admin-generic"></span><?php esc_html_e('Behavior Settings', 'ai-chat-assistant-for-business'); ?></h2>
                             <div id="businessbot-behavior-block" class="businessbot-behavior-block <?php echo $is_enabled ? '' : 'is-disabled'; ?>">
                                 <div class="businessbot-status-row">
                                     <div>
                                         <div class="businessbot-inline-heading">
-                                            <span><?php esc_html_e('Auto open chat on first visit', 'businessbot-ai-chat'); ?></span>
-                                            <span class="businessbot-badge"><?php esc_html_e('Recommended', 'businessbot-ai-chat'); ?></span>
+                                            <span><?php esc_html_e('Auto open chat on first visit', 'ai-chat-assistant-for-business'); ?></span>
+                                            <span class="businessbot-badge"><?php esc_html_e('Recommended', 'ai-chat-assistant-for-business'); ?></span>
                                         </div>
-                                        <p class="businessbot-help"><?php esc_html_e('Automatically opens the chatbot once per user session (usually on first page visit).', 'businessbot-ai-chat'); ?></p>
+                                        <p class="businessbot-help"><?php esc_html_e('Automatically opens the chatbot once per user session (usually on first page visit).', 'ai-chat-assistant-for-business'); ?></p>
                                         <p id="businessbot-auto-open-hint" class="businessbot-help businessbot-help-strong">
-                                            <?php echo ('yes' === $chatbot_auto_open) ? esc_html__('Enabled for higher engagement.', 'businessbot-ai-chat') : esc_html__('Chatbot stays minimized until user clicks it.', 'businessbot-ai-chat'); ?>
+                                            <?php echo ('yes' === $chatbot_auto_open) ? esc_html__('Enabled for higher engagement.', 'ai-chat-assistant-for-business') : esc_html__('Chatbot stays minimized until user clicks it.', 'ai-chat-assistant-for-business'); ?>
                                         </p>
                                     </div>
                                     <label class="businessbot-toggle" for="chatbot_auto_open">
@@ -120,16 +121,16 @@ function businessbot_chat_assist_front_settings_page() {
                         </div>
 
                         <div class="businessbot-card">
-                            <h2><span class="dashicons dashicons-admin-tools"></span><?php esc_html_e('Diagnostics', 'businessbot-ai-chat'); ?></h2>
+                            <h2><span class="dashicons dashicons-admin-tools"></span><?php esc_html_e('Diagnostics', 'ai-chat-assistant-for-business'); ?></h2>
                             <div class="businessbot-status-row">
                                 <div>
                                     <div class="businessbot-inline-heading">
-                                        <span><?php esc_html_e('Enable debug mode', 'businessbot-ai-chat'); ?></span>
-                                        <span class="businessbot-badge"><?php esc_html_e('For troubleshooting', 'businessbot-ai-chat'); ?></span>
+                                        <span><?php esc_html_e('Enable debug mode', 'ai-chat-assistant-for-business'); ?></span>
+                                        <span class="businessbot-badge"><?php esc_html_e('For troubleshooting', 'ai-chat-assistant-for-business'); ?></span>
                                     </div>
-                                    <p class="businessbot-help"><?php esc_html_e('Writes model attempts and API status to your PHP error log. API keys are never logged.', 'businessbot-ai-chat'); ?></p>
+                                    <p class="businessbot-help"><?php esc_html_e('Writes model attempts and API status to your PHP error log. API keys are never logged.', 'ai-chat-assistant-for-business'); ?></p>
                                     <p class="businessbot-help businessbot-help-strong">
-                                        <?php echo ('yes' === $chatbot_debug_mode) ? esc_html__('Debug mode is enabled.', 'businessbot-ai-chat') : esc_html__('Debug mode is disabled.', 'businessbot-ai-chat'); ?>
+                                        <?php echo ('yes' === $chatbot_debug_mode) ? esc_html__('Debug mode is enabled.', 'ai-chat-assistant-for-business') : esc_html__('Debug mode is disabled.', 'ai-chat-assistant-for-business'); ?>
                                     </p>
                                 </div>
                                 <label class="businessbot-toggle" for="chatbot_debug_mode">
@@ -140,15 +141,15 @@ function businessbot_chat_assist_front_settings_page() {
                         </div>
 
                         <div class="businessbot-card">
-                            <h2><span class="dashicons dashicons-visibility"></span><?php esc_html_e('Chat Behavior Preview', 'businessbot-ai-chat'); ?></h2>
+                            <h2><span class="dashicons dashicons-visibility"></span><?php esc_html_e('Chat Behavior Preview', 'ai-chat-assistant-for-business'); ?></h2>
                             <div class="businessbot-preview-list">
                                 <div>
-                                    <h3><?php esc_html_e('First Visit', 'businessbot-ai-chat'); ?></h3>
-                                    <p id="businessbot-first-visit-preview"><?php echo ('yes' === $chatbot_auto_open) ? esc_html__('Chat opens automatically.', 'businessbot-ai-chat') : esc_html__('Chat remains minimized.', 'businessbot-ai-chat'); ?></p>
+                                    <h3><?php esc_html_e('First Visit', 'ai-chat-assistant-for-business'); ?></h3>
+                                    <p id="businessbot-first-visit-preview"><?php echo ('yes' === $chatbot_auto_open) ? esc_html__('Chat opens automatically.', 'ai-chat-assistant-for-business') : esc_html__('Chat remains minimized.', 'ai-chat-assistant-for-business'); ?></p>
                                 </div>
                                 <div>
-                                    <h3><?php esc_html_e('Next Visits', 'businessbot-ai-chat'); ?></h3>
-                                    <p><?php echo ('yes' === $chatbot_auto_open) ? esc_html__('Chat stays minimized after first auto-open.', 'businessbot-ai-chat') : esc_html__('Chat stays minimized until user manually opens it.', 'businessbot-ai-chat'); ?></p>
+                                    <h3><?php esc_html_e('Next Visits', 'ai-chat-assistant-for-business'); ?></h3>
+                                    <p><?php echo ('yes' === $chatbot_auto_open) ? esc_html__('Chat stays minimized after first auto-open.', 'ai-chat-assistant-for-business') : esc_html__('Chat stays minimized until user manually opens it.', 'ai-chat-assistant-for-business'); ?></p>
                                 </div>
                             </div>
                         </div>
@@ -156,11 +157,11 @@ function businessbot_chat_assist_front_settings_page() {
 
                     <div>
                         <div class="businessbot-card businessbot-tip-card">
-                            <h2><span class="dashicons dashicons-lightbulb"></span><?php esc_html_e('Tips', 'businessbot-ai-chat'); ?></h2>
+                            <h2><span class="dashicons dashicons-lightbulb"></span><?php esc_html_e('Tips', 'ai-chat-assistant-for-business'); ?></h2>
                             <ul>
-                                <li><?php esc_html_e('Auto-open can increase engagement on first visit.', 'businessbot-ai-chat'); ?></li>
-                                <li><?php esc_html_e('Avoid overuse to prevent visitor annoyance.', 'businessbot-ai-chat'); ?></li>
-                                <li><?php esc_html_e('Test behavior on mobile devices before publishing.', 'businessbot-ai-chat'); ?></li>
+                                <li><?php esc_html_e('Auto-open can increase engagement on first visit.', 'ai-chat-assistant-for-business'); ?></li>
+                                <li><?php esc_html_e('Avoid overuse to prevent visitor annoyance.', 'ai-chat-assistant-for-business'); ?></li>
+                                <li><?php esc_html_e('Test behavior on mobile devices before publishing.', 'ai-chat-assistant-for-business'); ?></li>
                             </ul>
                         </div>
                     </div>
@@ -168,7 +169,7 @@ function businessbot_chat_assist_front_settings_page() {
 
                 <div class="businessbot-footer-actions">
                     <button type="submit" class="button button-primary button-large" id="businessbot-settings-save-bottom" disabled>
-                        <span class="businessbot-btn-text"><?php esc_html_e('Save Changes', 'businessbot-ai-chat'); ?></span>
+                        <span class="businessbot-btn-text"><?php esc_html_e('Save Changes', 'ai-chat-assistant-for-business'); ?></span>
                         <span class="spinner"></span>
                     </button>
                 </div>
@@ -178,17 +179,17 @@ function businessbot_chat_assist_front_settings_page() {
     </div>
     <script>
         window.businessbotSettingsData = <?php echo wp_json_encode([
-            'activeLabel' => __('Active', 'businessbot-ai-chat'),
-            'disabledLabel' => __('Disabled', 'businessbot-ai-chat'),
-            'activeHelp' => __('Your chatbot is live and visible to visitors.', 'businessbot-ai-chat'),
-            'disabledHelp' => __('Chatbot is turned off and will not appear on your website.', 'businessbot-ai-chat'),
-            'autoOpenOnHint' => __('Enabled for higher engagement.', 'businessbot-ai-chat'),
-            'autoOpenOffHint' => __('Chatbot stays minimized until user clicks it.', 'businessbot-ai-chat'),
-            'firstVisitOpen' => __('Chat opens automatically.', 'businessbot-ai-chat'),
-            'firstVisitMin' => __('Chat remains minimized.', 'businessbot-ai-chat'),
-            'toastEnabled' => __('Chatbot enabled', 'businessbot-ai-chat'),
-            'toastDisabled' => __('Chatbot disabled', 'businessbot-ai-chat'),
-            'savingText' => __('Saving...', 'businessbot-ai-chat'),
+            'activeLabel' => __('Active', 'ai-chat-assistant-for-business'),
+            'disabledLabel' => __('Disabled', 'ai-chat-assistant-for-business'),
+            'activeHelp' => __('Your chatbot is live and visible to visitors.', 'ai-chat-assistant-for-business'),
+            'disabledHelp' => __('Chatbot is turned off and will not appear on your website.', 'ai-chat-assistant-for-business'),
+            'autoOpenOnHint' => __('Enabled for higher engagement.', 'ai-chat-assistant-for-business'),
+            'autoOpenOffHint' => __('Chatbot stays minimized until user clicks it.', 'ai-chat-assistant-for-business'),
+            'firstVisitOpen' => __('Chat opens automatically.', 'ai-chat-assistant-for-business'),
+            'firstVisitMin' => __('Chat remains minimized.', 'ai-chat-assistant-for-business'),
+            'toastEnabled' => __('Chatbot enabled', 'ai-chat-assistant-for-business'),
+            'toastDisabled' => __('Chatbot disabled', 'ai-chat-assistant-for-business'),
+            'savingText' => __('Saving...', 'ai-chat-assistant-for-business'),
         ]); ?>;
     </script>
     <?php

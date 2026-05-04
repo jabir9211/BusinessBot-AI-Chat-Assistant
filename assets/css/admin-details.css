@@ -7,7 +7,7 @@
 
 .businessbot-profile-wrap {
     max-width: 1240px;
-    margin: 0 auto;
+    margin: 0px !important;
 }
 
 .businessbot-page-header {
@@ -167,6 +167,7 @@
 
 .businessbot-settings-wrap {
     max-width: 1240px;
+    margin: 1px;
 }
 
 .businessbot-settings-grid {

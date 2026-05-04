@@ -34,6 +34,7 @@ function businessbot_chat_assist_debug_log($event, $context = []) {
         }
     }
 
+    // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging is intentionally gated by plugin debug mode.
     error_log('[BusinessBot Debug] ' . sanitize_text_field((string) $event) . ' ' . wp_json_encode($safe_context));
 }
 
@@ -107,15 +108,23 @@ function businessbot_chat_assist_query_gemini($user_input) {
         return "API key is not set. Please go to the Integration page to add your Gemini API key.";
     }
 
-    // Initialize chat history
-    if (!isset($_SESSION['businessbot_chat'])) {
+    // Rebuild system context whenever business details change, so replies always use latest saved data.
+    $prompt = businessbot_chat_assist_generate_prompt();
+    $context_signature = md5((string) $prompt);
+    $session_signature = isset($_SESSION['businessbot_context_signature'])
+        ? sanitize_text_field((string) $_SESSION['businessbot_context_signature'])
+        : '';
+
+    // Initialize (or refresh) chat history with current business context.
+    if (!isset($_SESSION['businessbot_chat']) || $session_signature !== $context_signature) {
         $_SESSION['businessbot_chat'] = [];
+        $_SESSION['businessbot_context_signature'] = $context_signature;
 
         // Inject system prompt
         $_SESSION['businessbot_chat'][] = [
             'role'  => 'user',
             'parts' => [[
-                'text' => businessbot_chat_assist_generate_prompt() . "\n\nUser: " . $user_input
+                'text' => $prompt . "\n\nUser: " . $user_input
             ]]
         ];
     } else {
@@ -205,6 +214,7 @@ function businessbot_chat_assist_get_sanitized_chat_session() {
         return $output;
     }
 
+    // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Values are sanitized per-entry in the loop below.
     foreach ($_SESSION['businessbot_chat'] as $entry) {
         if (
             is_array($entry) &&
@@ -268,6 +278,7 @@ function businessbot_chat_assist_trim_chat_session($max_entries = 18) {
         return;
     }
 
+    // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Session is normalized before reuse.
     $chat = array_values($_SESSION['businessbot_chat']);
     $count = count($chat);
     if ($count <= $max_entries) {
@@ -317,7 +328,7 @@ function businessbot_chat_assist_call_gemini_model($api_key, $model, $payload) {
         return [
             'success' => false,
             'retry_next' => true,
-            'message' => __('AI is temporarily unavailable. Please try again.', 'businessbot-ai-chat'),
+            'message' => __('AI is temporarily unavailable. Please try again.', 'ai-chat-assistant-for-business'),
             'model' => $model,
             'status_code' => 0,
             'error_message' => sanitize_text_field($response->get_error_message()),
@@ -346,7 +357,7 @@ function businessbot_chat_assist_call_gemini_model($api_key, $model, $payload) {
     }
 
     $retryable = businessbot_chat_assist_is_retryable_model_error($status_code, $api_error_message, $body);
-    $fallback_message = __('AI is temporarily unavailable. Please try again.', 'businessbot-ai-chat');
+    $fallback_message = __('AI is temporarily unavailable. Please try again.', 'ai-chat-assistant-for-business');
 
     return [
         'success' => false,
@@ -525,7 +536,7 @@ function businessbot_chat_assist_extract_model_major($model_name) {
 function businessbot_chat_assist_normalize_assistant_reply($reply) {
     $reply = is_string($reply) ? trim($reply) : '';
     if ('' === $reply) {
-        return __('AI is temporarily unavailable. Please try again.', 'businessbot-ai-chat');
+        return __('AI is temporarily unavailable. Please try again.', 'ai-chat-assistant-for-business');
     }
 
     $blocked_patterns = [
@@ -567,32 +578,37 @@ function businessbot_chat_assist_local_business_fallback_answer($user_input) {
 
     if (businessbot_chat_assist_contains_any($text, ['contact', 'phone', 'number', 'call', 'mobile', 'whatsapp'])) {
         if ('' !== $phone) {
-            return sprintf(__('You can reach us at %s.', 'businessbot-ai-chat'), $phone);
+            /* translators: %s: phone number. */
+            return sprintf(__('You can reach us at %s.', 'ai-chat-assistant-for-business'), $phone);
         }
     }
 
     if (businessbot_chat_assist_contains_any($text, ['email', 'mail', 'e-mail'])) {
         if ('' !== $email) {
-            return sprintf(__('You can email us at %s.', 'businessbot-ai-chat'), $email);
+            /* translators: %s: support email address. */
+            return sprintf(__('You can email us at %s.', 'ai-chat-assistant-for-business'), $email);
         }
     }
 
     if (businessbot_chat_assist_contains_any($text, ['address', 'location', 'where', 'shop'])) {
         if ('' !== $address) {
-            return sprintf(__('Our address is: %s', 'businessbot-ai-chat'), $address);
+            /* translators: %s: business address. */
+            return sprintf(__('Our address is: %s', 'ai-chat-assistant-for-business'), $address);
         }
     }
 
     if (businessbot_chat_assist_contains_any($text, ['hours', 'timing', 'open', 'close'])) {
         if ('' !== $hours) {
-            return sprintf(__('Our business hours are: %s', 'businessbot-ai-chat'), $hours);
+            /* translators: %s: business hours. */
+            return sprintf(__('Our business hours are: %s', 'ai-chat-assistant-for-business'), $hours);
         }
     }
 
     if (businessbot_chat_assist_contains_any($text, ['service', 'services', 'provide', 'offer', 'product', 'products'])) {
         if ('' !== $services) {
             return sprintf(
-                __('At %1$s, we provide: %2$s', 'businessbot-ai-chat'),
+                /* translators: 1: business name, 2: products or services list. */
+                __('At %1$s, we provide: %2$s', 'ai-chat-assistant-for-business'),
                 $business_name,
                 $services
             );
@@ -601,22 +617,26 @@ function businessbot_chat_assist_local_business_fallback_answer($user_input) {
 
     if (businessbot_chat_assist_contains_any($text, ['book', 'booking', 'slot', 'appointment', 'reserve', 'order'])) {
         $lines = [];
-        $lines[] = __('Sure - we can help you with booking.', 'businessbot-ai-chat');
+        $lines[] = __('Sure - we can help you with booking.', 'ai-chat-assistant-for-business');
 
         if ('' !== $phone) {
-            $lines[] = sprintf(__('Call us at %s', 'businessbot-ai-chat'), $phone);
+            /* translators: %s: phone number. */
+            $lines[] = sprintf(__('Call us at %s', 'ai-chat-assistant-for-business'), $phone);
         }
 
         if ('' !== $email) {
-            $lines[] = sprintf(__('or email us at %s', 'businessbot-ai-chat'), $email);
+            /* translators: %s: support email address. */
+            $lines[] = sprintf(__('or email us at %s', 'ai-chat-assistant-for-business'), $email);
         }
 
         if ('' !== $faq_link) {
-            $lines[] = sprintf(__('You can also use our help page: %s', 'businessbot-ai-chat'), $faq_link);
+            /* translators: %s: support/help page URL. */
+            $lines[] = sprintf(__('You can also use our help page: %s', 'ai-chat-assistant-for-business'), $faq_link);
         }
 
         if ('' !== $hours) {
-            $lines[] = sprintf(__('Booking support hours: %s', 'businessbot-ai-chat'), $hours);
+            /* translators: %s: booking support hours. */
+            $lines[] = sprintf(__('Booking support hours: %s', 'ai-chat-assistant-for-business'), $hours);
         }
 
         return implode("\n", $lines);
@@ -628,7 +648,8 @@ function businessbot_chat_assist_local_business_fallback_answer($user_input) {
 
     if (businessbot_chat_assist_contains_any($text, ['help', 'support', 'details'])) {
         return sprintf(
-            __('I can help with business details, services, contact info, and store hours. For more help, visit: %s', 'businessbot-ai-chat'),
+            /* translators: %s: support/help page URL. */
+            __('I can help with business details, services, contact info, and store hours. For more help, visit: %s', 'ai-chat-assistant-for-business'),
             $faq_link
         );
     }
@@ -642,19 +663,22 @@ function businessbot_chat_assist_get_service_unavailable_message() {
     $email = is_array($options) ? trim((string) ($options['businessEmails'] ?? '')) : '';
     $faq_link = is_array($options) ? trim((string) ($options['faq_link'] ?? site_url())) : site_url();
 
-    $message = __('I am having a temporary issue replying right now.', 'businessbot-ai-chat');
+    $message = __('I am having a temporary issue replying right now.', 'ai-chat-assistant-for-business');
     if ('' !== $phone || '' !== $email) {
-        $message .= ' ' . __('Please contact our support team directly:', 'businessbot-ai-chat');
+        $message .= ' ' . __('Please contact our support team directly:', 'ai-chat-assistant-for-business');
         if ('' !== $phone) {
-            $message .= ' ' . sprintf(__('Phone: %s.', 'businessbot-ai-chat'), $phone);
+            /* translators: %s: phone number. */
+            $message .= ' ' . sprintf(__('Phone: %s.', 'ai-chat-assistant-for-business'), $phone);
         }
         if ('' !== $email) {
-            $message .= ' ' . sprintf(__('Email: %s.', 'businessbot-ai-chat'), $email);
+            /* translators: %s: support email address. */
+            $message .= ' ' . sprintf(__('Email: %s.', 'ai-chat-assistant-for-business'), $email);
         }
     }
 
     if ('' !== $faq_link) {
-        $message .= ' ' . sprintf(__('Help page: %s', 'businessbot-ai-chat'), $faq_link);
+        /* translators: %s: support/help page URL. */
+        $message .= ' ' . sprintf(__('Help page: %s', 'ai-chat-assistant-for-business'), $faq_link);
     }
 
     return trim($message);

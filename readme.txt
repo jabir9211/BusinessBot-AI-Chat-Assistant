@@ -2,7 +2,7 @@
 Contributors: jabir20
 Tags: ai assistant, support chat, gemini, customer support, chatbot, business assistant
 Requires at least: 5.5
-Tested up to: 6.9.4
+Tested up to: 6.9
 Requires PHP: 7.4
 Stable tag: 2.0
 License: GPLv2 or later
