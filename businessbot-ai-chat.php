@@ -36,8 +36,8 @@ defined('ABSPATH') || exit;
 // Constants
 define('BUSSINESSBOT_DIR', plugin_dir_path(__FILE__));
 define('BUSSINESSBOT_URL', plugin_dir_url(__FILE__));
-// define('BUSSINESSBOT_VERSION', '2.0');
-define('BUSSINESSBOT_VERSION', time());
+define('BUSSINESSBOT_VERSION', '2.0');
+// define('BUSSINESSBOT_VERSION', time());
 
 // Include core files
 require_once BUSSINESSBOT_DIR . 'admin/menus.php';

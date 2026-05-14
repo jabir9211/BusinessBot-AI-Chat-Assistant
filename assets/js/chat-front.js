@@ -16,7 +16,7 @@ jQuery(document).ready(function ($) {
     function setWidgetBodyState(minimized) {
         isMinimized = minimized;
         $('#ai-chat-widget').toggleClass('is-minimized', minimized);
-        $('.ai-minimize-icon').attr('data-state', minimized ? 'minimized' : 'open');
+        $('.aicafb-chat-minimize-icon').attr('data-state', minimized ? 'minimized' : 'open');
     }
 
     function ensureInitialMessage() {
@@ -27,16 +27,16 @@ jQuery(document).ready(function ($) {
 
     function appendMessage(sender, message) {
         const content = typeof marked !== 'undefined' ? marked.parse(message) : $('<div>').text(message).html();
+        const rowMod = sender === 'user' ? 'aicafb-msg-row--user' : 'aicafb-msg-row--assistant';
         const $message = $(`
-            <div class="ai-message-row ${sender}" style="opacity: 0; transform: translateY(10px);">
-                <div class="bubble">${content}</div>
-                <div class="ai-message-time">${getTimestamp()}${sender === 'user' ? ' \u2713\u2713' : ''}</div>
+            <div class="aicafb-msg-row ${rowMod}" style="opacity: 0; transform: translateY(10px);">
+                <div class="aicafb-msg-bubble">${content}</div>
+                <div class="aicafb-msg-meta">${getTimestamp()}${sender === 'user' ? ' \u2713\u2713' : ''}</div>
             </div>
         `);
 
         $('#ai-chat-messages').append($message);
 
-        // Animate message appearance
         setTimeout(() => {
             $message.css({
                 opacity: 1,
@@ -48,14 +48,14 @@ jQuery(document).ready(function ($) {
         scrollToMessage($message);
     }
 
-    window.appendMessage = appendMessage; // For use outside jQuery init
+    window.appendMessage = appendMessage;
 
     function showTypingIndicator() {
         const $typing = $(`
-            <div class="ai-message-row assistant typing-indicator">
-                <div class="bubble">
-                    <span class="typing-label">Typing</span>
-                    <span class="typing-dots" aria-hidden="true">
+            <div class="aicafb-msg-row aicafb-msg-row--assistant aicafb-typing">
+                <div class="aicafb-msg-bubble">
+                    <span class="aicafb-typing-label">Typing</span>
+                    <span class="aicafb-typing-dots" aria-hidden="true">
                         <span></span><span></span><span></span>
                     </span>
                 </div>
@@ -66,7 +66,7 @@ jQuery(document).ready(function ($) {
     }
 
     function removeTypingIndicator() {
-        $('.typing-indicator').remove();
+        $('.aicafb-typing').remove();
     }
 
     function sendUserMessage() {
@@ -80,7 +80,7 @@ jQuery(document).ready(function ($) {
         $.post(BusinessBotData.ajax_url, {
             action: 'businessbot_send',
             message: message,
-             _ajax_nonce: BusinessBotData.nonce
+            _ajax_nonce: BusinessBotData.nonce
         }, function (response) {
             removeTypingIndicator();
 
@@ -146,11 +146,11 @@ jQuery(document).ready(function ($) {
             }, 800);
         }
     });
-
 });
 
-// Ensure scroll stays at bottom when window resizes
 jQuery(window).on('resize', function () {
     const $container = jQuery('#ai-chat-messages');
-    $container.scrollTop($container[0].scrollHeight);
+    if ($container.length && $container[0]) {
+        $container.scrollTop($container[0].scrollHeight);
+    }
 });
